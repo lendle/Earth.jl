@@ -3,24 +3,24 @@ module Earth
 using BinDeps
 @BinDeps.load_dependencies
 
-#const libearth = joinpath(Pkg.dir("Earth"), "deps", "libearth.so")
+export earth, predict, EarthFit
 
 type EarthFit
   UsedCols::Vector{Int32}
   Dirs::Matrix{Int32}
   Cuts::Matrix{Float64}
   Betas::Matrix{Float64}
-  nPreds::Int
-  nResp::Int
-  nTerms::Int
-  nMaxTerms::Int
+  nPreds::Int32
+  nResp::Int32
+  nTerms::Int32
+  nMaxTerms::Int32
   BestGcv::Float64
 end
 
-function earth(x::Matrix{Float64}, y::Vector{Float64};
+function earth(x::VecOrMat{Float64}, y::VecOrMat{Float64};
          WeightsArg = ones(size(x, 1)),
          nMaxDegree = 1,
-         nMaxTerms = 21,
+         nMaxTerms = min(200, max(20, 2 * size(x, 2))) + 1,
          Penalty = (nMaxDegree > 1)? 3.0: 2.0,
          Thresh = 0.001,
          nMinSpan = 0,
@@ -28,12 +28,10 @@ function earth(x::Matrix{Float64}, y::Vector{Float64};
          nFastK = 20,
          FastBeta = 0.0,
          NewVarPenalty = 0.0,
-         LinPreds=zeros(Int, size(x, 2)),
+         LinPreds=zeros(Int32, size(x, 2)),
          UseBetaCache = false,
-         Trace = 3.0
+         Trace = 0.0
          )
-
-
 
   nCases = size(x, 1)
   nResp = size(y, 2)
@@ -61,13 +59,40 @@ function earth(x::Matrix{Float64}, y::Vector{Float64};
 
 end
 
-function predict(ef::EarthFit, x)
-  yhat = [NaN]
-
+function predict_one_obs!(ef, onex, oney)
   ccall((:PredictEarth, libearth), Ptr{Void},
         (Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cint}, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cint, Cint, Cint),
-        yhat, x, ef.UsedCols, ef.Dirs, ef.Cuts, ef.Betas, ef.nPreds, ef.nResp, ef.nTerms, ef.nMaxTerms)
-  yhat[1]
+        oney, onex, ef.UsedCols, ef.Dirs, ef.Cuts, ef.Betas, ef.nPreds, ef.nResp, ef.nTerms, ef.nMaxTerms)
+end
+
+function predict(ef::EarthFit, x::VecOrMat)
+
+  yhat = Array(Float64, size(x, 1), ef.nResp)
+
+  onex = Array(Float64, size(x, 2))
+  oney = Array(Float64, ef.nResp)
+
+  for i in 1:size(x,1)
+    onex[:] = x[i,:]
+    predict_one_obs!(ef, onex, oney)
+    yhat[i, :] = oney
+  end
+
+  yhat
+end
+
+
+function Base.print(io::IO, ef::EarthFit)
+  flush_cstdio()
+  originalSTDOUT = STDOUT
+  (outRead, outWrite) = redirect_stdout()
+  ccall((:FormatEarth, libearth), Ptr{Void},
+    (Ptr{Cint}, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cint, Cint, Cint, Cint, Cdouble),
+    ef.UsedCols, ef.Dirs, ef.Cuts, ef.Betas, ef.nPreds, ef.nResp, ef.nTerms, ef.nMaxTerms, 3, 0.0)
+   flush_cstdio()
+  str = readavailable(outRead)
+  redirect_stdout(originalSTDOUT)
+  print(io, str)
 end
 
 
