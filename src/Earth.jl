@@ -1,6 +1,9 @@
 module Earth
 
-const libearth = joinpath(Pkg.dir("Earth"), "deps", "libearth.so")
+using BinDeps
+@BinDeps.load_dependencies
+
+#const libearth = joinpath(Pkg.dir("Earth"), "deps", "libearth.so")
 
 type EarthFit
   UsedCols::Vector{Int32}

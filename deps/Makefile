@@ -14,6 +14,10 @@ libearth.so: $(OBJS)
 clean:
 	rm -f *o
 
-cleanall: clean
+cleanbuild: clean
 	rm -rf standalone-earth
 	rm -f standalone-earth-*.tar.gz
+
+cleanall: cleanbuild
+	rm -rf usr
+	rm -f deps.jl
