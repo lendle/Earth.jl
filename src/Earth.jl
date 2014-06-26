@@ -82,18 +82,23 @@ function predict(ef::EarthFit, x::VecOrMat)
 end
 
 
-function Base.print(io::IO, ef::EarthFit)
-  flush_cstdio()
-  originalSTDOUT = STDOUT
-  (outRead, outWrite) = redirect_stdout()
-  ccall((:FormatEarth, libearth), Ptr{Void},
-    (Ptr{Cint}, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cint, Cint, Cint, Cint, Cdouble),
-    ef.UsedCols, ef.Dirs, ef.Cuts, ef.Betas, ef.nPreds, ef.nResp, ef.nTerms, ef.nMaxTerms, 3, 0.0)
-   flush_cstdio()
-  str = readavailable(outRead)
-  redirect_stdout(originalSTDOUT)
-  print(io, str)
-end
+# function Base.print(io::IO, ef::EarthFit)
+#   flush_cstdio()
+#   originalSTDOUT = STDOUT
+#   (outRead, outWrite) = redirect_stdout()
+#   ccall((:FormatEarth, libearth), Ptr{Void},
+#     (Ptr{Cint}, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cint, Cint, Cint, Cint, Cdouble),
+#     ef.UsedCols, ef.Dirs, ef.Cuts, ef.Betas, ef.nPreds, ef.nResp, ef.nTerms, ef.nMaxTerms, 3, 0.0)
+#   flush_cstdio()
 
+#   str = readavailable(outRead)
+#   redirect_stdout(originalSTDOUT)
+#   print(io, str)
+# end
+
+function Base.show(io::IO, ef::EarthFit)
+  print(io, "EarthFit\nNumber of predictors: $(ef.nPreds)\nNumber of outcomes: $(ef.nResp)")
+  print(io, "\nNumber of terms: $(ef.nTerms)\nMax terms: $(ef.nMaxTerms)\nBest GCV: $(ef.BestGcv)")
+end
 
 end # module
