@@ -25,11 +25,3 @@ provides(SimpleBuild,
     end), libearth)
 
 @BinDeps.install [:libearth => :libearth]
-
-# depsdir = joinpath(Pkg.dir("Earth"), "deps")
-
-# cd(depsdir)
-# run(download_cmd("http://www.milbo.users.sonic.net/earth/$fname",
-#                  joinpath(depsdir, fname)))
-# run(unpack_cmd(fname, ".", ".gz", ".tar"))
-# run(`make libearth.so`)
