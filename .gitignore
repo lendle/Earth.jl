@@ -1,0 +1,4 @@
+deps/*o
+deps/*tar.gz
+deps/standalone-earth
+deps/deps.jl
