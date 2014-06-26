@@ -13,15 +13,10 @@ provides(Sources, URI("http://www.milbo.users.sonic.net/earth/$fname"), libearth
 
 provides(SimpleBuild,
     (@build_steps begin
+       ChangeDirectory(joinpath(Pkg.dir("Earth"), "deps"))
         FileDownloader("http://www.milbo.users.sonic.net/earth/$fname", joinpath(".", fname))
         FileUnpacker(fname, pwd(), "standalone-earth")
-        `make`
-        # @build_steps begin
-        #     ChangeDirectory(srcdir)
-        #     `cat $patchdir/CoinMP-emptyproblem.patch` |> `patch -N -p1`
-        #     `./configure --prefix=$prefix --enable-dependency-linking`
-        #     `make install`
-        # end
+        `make libearth.so`
     end), libearth)
 
 @BinDeps.install [:libearth => :libearth]
