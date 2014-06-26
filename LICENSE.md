@@ -20,3 +20,6 @@ The Earth.jl package is licensed under the MIT "Expat" License:
 > CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 > TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 > SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+The Earth.jl package depends on (the standalone version of) the earth package for R (http://www.milbo.users.sonic.net/earth/), which is retrieved and built automatically by `Pkg.build("Earth")`.
+The earth package for R is licensed under the [GPL-2](http://www.r-project.org/Licenses/GPL-2), and the standalone version includes code from [R project](http://r-project.org), which is also GPL-2 licensed.
