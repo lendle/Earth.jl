@@ -55,3 +55,11 @@ Returns a matrix of predicted outcomes with one row per observation and one colu
 `Base.print` is defined for `EarthFit` objects, which prints the coefficient and basis functions.
 I'm just capturing the output of standalone-earth's `FormatEarth` function, and I may not be doing it in a safe way, so this may not always work. -->
 
+### `modelmatrix` function
+
+Given a vector or matrix of (possibly new) predictors, returns a matrix of MARS terms with a constant term in the first column.
+
+**Arguments**
+
+* `ef::EarthFit` - fitted earth object.
+* `x::VecOrMat{Float64}` - Vector or matrix of (possibly new) predictors.

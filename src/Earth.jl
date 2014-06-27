@@ -3,7 +3,7 @@ module Earth
 using BinDeps
 @BinDeps.load_dependencies
 
-export earth, predict, EarthFit
+export earth, predict, EarthFit, modelmatrix
 
 type EarthFit
   UsedCols::Vector{Int32}
@@ -99,6 +99,23 @@ end
 function Base.show(io::IO, ef::EarthFit)
   print(io, "EarthFit\nNumber of predictors: $(ef.nPreds)\nNumber of outcomes: $(ef.nResp)")
   print(io, "\nNumber of terms: $(ef.nTerms)\nMax terms: $(ef.nMaxTerms)\nBest GCV: $(ef.BestGcv)")
+end
+
+function modelmatrix(ef::EarthFit, x)
+  mm = ones(Float64, size(x, 1), ef.nTerms)
+  for iTerm in 2:ef.nTerms
+    for iPred in 1:ef.nPreds
+      dir = ef.Dirs[iTerm, iPred]
+      if dir == int32(-1)
+        mm[:, iTerm] .*= max(0, ef.Cuts[iTerm, iPred] .- x[:, iPred])
+      elseif dir == int32(1)
+        mm[:, iTerm] .*= max(0, x[:, iPred] .- ef.Cuts[iTerm, iPred])
+      elseif dir == int32(2)
+        mm[:, iTerm] .*= x[:, iPred]
+      end
+    end
+  end
+  mm
 end
 
 end # module
