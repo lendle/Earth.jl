@@ -102,16 +102,20 @@ function Base.show(io::IO, ef::EarthFit)
 end
 
 function modelmatrix(ef::EarthFit, x)
-  mm = ones(Float64, size(x, 1), ef.nTerms)
+  mm = ones(Float64, size(x, 1), sum(ef.UsedCols[1:ef.nTerms]))
+  iTerm1 = 1
   for iTerm in 2:ef.nTerms
-    for iPred in 1:ef.nPreds
-      dir = ef.Dirs[iTerm, iPred]
-      if dir == int32(-1)
-        mm[:, iTerm] .*= max(0, ef.Cuts[iTerm, iPred] .- x[:, iPred])
-      elseif dir == int32(1)
-        mm[:, iTerm] .*= max(0, x[:, iPred] .- ef.Cuts[iTerm, iPred])
-      elseif dir == int32(2)
-        mm[:, iTerm] .*= x[:, iPred]
+    if ef.UsedCols[iTerm] == 1
+      iTerm1 += 1
+      for iPred in 1:ef.nPreds
+        dir = ef.Dirs[iTerm, iPred]
+        if dir == int32(-1)
+          mm[:, iTerm1] .*= max(0.0, ef.Cuts[iTerm, iPred] .- x[:, iPred])
+        elseif dir == int32(1)
+          mm[:, iTerm1] .*= max(0.0, x[:, iPred] .- ef.Cuts[iTerm, iPred])
+        elseif dir == int32(2)
+          mm[:, iTerm1] .*= x[:, iPred]
+        end
       end
     end
   end
