@@ -17,6 +17,8 @@ type EarthFit
   BestGcv::Float64
 end
 
+include("terms.jl")
+
 function earth(x::VecOrMat{Float64}, y::VecOrMat{Float64};
          WeightsArg = ones(size(x, 1)),
          nMaxDegree = 1,
